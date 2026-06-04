@@ -1,0 +1,22 @@
+{% extends 'library/base.html' %}
+{% block title %}My Profile — LibraryHub{% endblock %}
+{% block content %}
+<div class="form-card">
+  <h2>👤 My Profile</h2>
+  <div style="margin-bottom:1.5rem;padding:1rem;background:#f9fafb;border-radius:var(--radius);">
+    <strong>{{ user.get_full_name|default:user.username }}</strong><br>
+    <span style="color:var(--text-muted);">{{ user.email }}</span><br>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Member since {{ profile.membership_date|date:"N j, Y" }}</span>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+      <label>{{ field.label }}</label>
+      {{ field }}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Update Profile</button>
+  </form>
+</div>
+{% endblock %}

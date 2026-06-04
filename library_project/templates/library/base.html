@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}LibraryHub{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<nav>
+  <a href="{% url 'home' %}" class="nav-brand">
+    <span class="logo-icon">📚</span> LibraryHub
+  </a>
+  <div class="nav-links">
+    <a href="{% url 'book_list' %}">Browse Books</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'dashboard' %}">My Dashboard</a>
+      {% if user.is_staff %}
+        <a href="{% url 'librarian_dashboard' %}">Librarian Panel</a>
+      {% endif %}
+      <a href="{% url 'profile' %}">{{ user.first_name|default:user.username }}</a>
+      <a href="{% url 'logout' %}" class="btn-accent">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}" class="btn-accent">Join Free</a>
+    {% endif %}
+  </div>
+</nav>
+
+<main>
+  {% if messages %}
+  <ul class="messages">
+    {% for msg in messages %}
+      <li class="{{ msg.tags }}">{{ msg }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<footer>
+  <p>© 2025 LibraryHub — Your community library system</p>
+</footer>
+</body>
+</html>

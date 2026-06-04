@@ -1,0 +1,76 @@
+{% extends 'library/base.html' %}
+{% block title %}{{ book.title }} — LibraryHub{% endblock %}
+{% block content %}
+
+<a href="{% url 'book_list' %}" class="btn btn-outline btn-sm" style="margin-bottom:1.5rem;">← Back to Books</a>
+
+<div class="book-detail">
+  <div class="book-detail-cover">
+    <div class="book-cover" style="height:380px;">
+      {% if book.cover_image %}
+        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+      {% else %}
+        📖
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <h1 style="font-size:1.8rem;margin-bottom:0.4rem;">{{ book.title }}</h1>
+    <p style="font-size:1.1rem;color:var(--text-muted);margin-bottom:1rem;">by {{ book.author }}</p>
+    {% if book.category %}<span class="badge badge-blue">{{ book.category.name }}</span>{% endif %}
+
+    <dl class="book-meta" style="margin-top:1.25rem;">
+      <dt>ISBN</dt><dd>{{ book.isbn }}</dd>
+      {% if book.published_year %}
+      <dt>Year</dt><dd>{{ book.published_year }}</dd>
+      {% endif %}
+      <dt>Total Copies</dt><dd>{{ book.total_copies }}</dd>
+      <dt>Available</dt>
+      <dd>
+        {% if book.is_available %}
+          <span class="available">✔ {{ book.available_copies }} available</span>
+        {% else %}
+          <span class="unavailable">✘ None available</span>
+        {% endif %}
+      </dd>
+      <dt>Added</dt><dd>{{ book.date_added|date:"N j, Y" }}</dd>
+    </dl>
+
+    {% if book.description %}
+    <h3 style="margin-bottom:0.5rem;">Description</h3>
+    <p style="color:var(--text-muted);line-height:1.8;">{{ book.description }}</p>
+    {% endif %}
+
+    <div class="book-actions">
+      {% if user.is_authenticated %}
+        {% if user_has_active_borrow %}
+          <span class="badge badge-yellow" style="padding:0.5rem 1rem;font-size:0.9rem;">You have this book borrowed</span>
+        {% elif book.is_available %}
+          <form method="post" action="{% url 'borrow_book' book.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">📥 Borrow Book</button>
+          </form>
+        {% endif %}
+        {% if not user_has_active_borrow and not book.is_available %}
+          {% if user_has_reservation %}
+            <span class="badge badge-blue" style="padding:0.5rem 1rem;font-size:0.9rem;">✔ Reserved</span>
+          {% else %}
+            <form method="post" action="{% url 'reserve_book' book.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-warning">🔔 Reserve</button>
+            </form>
+          {% endif %}
+        {% endif %}
+      {% else %}
+        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">Login to Borrow</a>
+      {% endif %}
+
+      {% if user.is_staff %}
+        <a href="{% url 'edit_book' book.pk %}" class="btn btn-outline">✏️ Edit</a>
+        <a href="{% url 'delete_book' book.pk %}" class="btn btn-danger">🗑 Delete</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

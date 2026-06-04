@@ -1,0 +1,14 @@
+{% extends 'library/base.html' %}
+{% block title %}Delete Book — LibraryHub{% endblock %}
+{% block content %}
+<div class="form-card" style="text-align:center;">
+  <h2 style="color:var(--danger);">🗑 Delete Book</h2>
+  <p style="margin:1rem 0;font-size:1.1rem;">Are you sure you want to delete <strong>"{{ book.title }}"</strong>?</p>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">This action cannot be undone.</p>
+  <form method="post" style="display:flex;gap:0.75rem;justify-content:center;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'book_detail' book.pk %}" class="btn btn-outline">Cancel</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'library/base.html' %}
+{% block title %}Librarian Panel — LibraryHub{% endblock %}
+{% block content %}
+
+<div class="section-header">
+  <h2>🏛️ Librarian Panel</h2>
+  <div style="display:flex;gap:0.5rem;">
+    <a href="{% url 'add_book' %}" class="btn btn-accent">+ Add Book</a>
+    <a href="{% url 'manage_categories' %}" class="btn btn-outline">Categories</a>
+    <a href="{% url 'all_borrows' %}" class="btn btn-outline">All Borrows</a>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="value">{{ total_books }}</div><div class="label">Total Books</div></div>
+  <div class="stat-card"><div class="value">{{ total_users }}</div><div class="label">Members</div></div>
+  <div class="stat-card"><div class="value">{{ active_borrows }}</div><div class="label">Active Borrows</div></div>
+  <div class="stat-card" style="border-top-color:var(--danger)"><div class="value" style="color:var(--danger);">{{ overdue.count }}</div><div class="label">Overdue</div></div>
+</div>
+
+{% if overdue %}
+<div class="section-header" style="margin-top:1.5rem;">
+  <h3>⚠️ Overdue Books</h3>
+</div>
+<div class="table-wrapper" style="margin-bottom:2rem;">
+  <table>
+    <thead><tr><th>Member</th><th>Book</th><th>Due Date</th><th>Days Overdue</th></tr></thead>
+    <tbody>
+      {% for rec in overdue %}
+      <tr>
+        <td>{{ rec.user.get_full_name|default:rec.user.username }}</td>
+        <td><a href="{% url 'book_detail' rec.book.pk %}" style="color:var(--primary-light);">{{ rec.book.title|truncatechars:40 }}</a></td>
+        <td>{{ rec.due_date|date:"N j, Y" }}</td>
+        <td><span class="badge badge-red">{{ rec.due_date|timesince }} ago</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<div class="section-header">
+  <h3>Recent Borrowing Activity</h3>
+</div>
+<div class="table-wrapper">
+  <table>
+    <thead><tr><th>Member</th><th>Book</th><th>Borrowed</th><th>Due</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for rec in recent_borrows %}
+      <tr>
+        <td>{{ rec.user.get_full_name|default:rec.user.username }}</td>
+        <td><a href="{% url 'book_detail' rec.book.pk %}" style="color:var(--primary-light);">{{ rec.book.title|truncatechars:35 }}</a></td>
+        <td>{{ rec.borrow_date|date:"N j, Y" }}</td>
+        <td>{{ rec.due_date|date:"N j, Y" }}</td>
+        <td>
+          {% if rec.status == 'returned' %}<span class="badge badge-gray">Returned</span>
+          {% elif rec.status == 'overdue'  %}<span class="badge badge-red">Overdue</span>
+          {% else %}<span class="badge badge-green">Borrowed</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

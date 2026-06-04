@@ -1,0 +1,20 @@
+{% extends 'library/base.html' %}
+{% block title %}Register — LibraryHub{% endblock %}
+{% block content %}
+<div class="form-card">
+  <h2>📚 Create Account</h2>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+      <label>{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}<ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      {% if field.help_text %}<div class="helptext">{{ field.help_text }}</div>{% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary" style="width:100%;">Create Account</button>
+  </form>
+  <p style="text-align:center;margin-top:1rem;color:var(--text-muted);">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+</div>
+{% endblock %}

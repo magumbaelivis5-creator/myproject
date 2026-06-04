@@ -1,0 +1,31 @@
+{% extends 'library/base.html' %}
+{% block title %}All Borrows — LibraryHub{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h2>📋 All Borrow Records</h2>
+  <a href="{% url 'librarian_dashboard' %}" class="btn btn-outline btn-sm">← Back</a>
+</div>
+<div class="table-wrapper">
+  <table>
+    <thead><tr><th>Member</th><th>Book</th><th>Borrowed</th><th>Due</th><th>Returned</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for rec in borrows %}
+      <tr>
+        <td>{{ rec.user.get_full_name|default:rec.user.username }}</td>
+        <td><a href="{% url 'book_detail' rec.book.pk %}" style="color:var(--primary-light);">{{ rec.book.title|truncatechars:35 }}</a></td>
+        <td>{{ rec.borrow_date|date:"N j, Y" }}</td>
+        <td>{{ rec.due_date|date:"N j, Y" }}</td>
+        <td>{{ rec.return_date|date:"N j, Y"|default:"—" }}</td>
+        <td>
+          {% if rec.status == 'returned' %}<span class="badge badge-gray">Returned</span>
+          {% elif rec.status == 'overdue'  %}<span class="badge badge-red">Overdue</span>
+          {% else %}<span class="badge badge-green">Borrowed</span>{% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">No records yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

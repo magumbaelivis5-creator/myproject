@@ -1,0 +1,54 @@
+{% extends 'library/base.html' %}
+{% block title %}Browse Books — LibraryHub{% endblock %}
+{% block content %}
+
+<div class="section-header">
+  <h2>📚 Browse Books</h2>
+  {% if user.is_staff %}<a href="{% url 'add_book' %}" class="btn btn-accent">+ Add Book</a>{% endif %}
+</div>
+
+<form method="get" class="search-bar">
+  {% for field in form %}
+  <div class="form-group">
+    <label>{{ field.label }}</label>
+    {{ field }}
+  </div>
+  {% endfor %}
+  <button type="submit" class="btn btn-primary">Search</button>
+  <a href="{% url 'book_list' %}" class="btn btn-outline">Clear</a>
+</form>
+
+<p style="color:var(--text-muted);margin-bottom:1rem;">{{ books.count }} book{{ books.count|pluralize }} found</p>
+
+<div class="grid-4">
+  {% for book in books %}
+  <div class="card">
+    <div class="book-cover">
+      {% if book.cover_image %}
+        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+      {% else %}
+        📖
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <div class="card-title">{{ book.title|truncatechars:55 }}</div>
+      <div class="card-subtitle">{{ book.author }}</div>
+      {% if book.category %}<span class="badge badge-blue" style="margin-bottom:0.5rem;display:inline-block;">{{ book.category.name }}</span>{% endif %}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+        {% if book.is_available %}
+          <span class="badge badge-green">{{ book.available_copies }} left</span>
+        {% else %}
+          <span class="badge badge-red">Unavailable</span>
+        {% endif %}
+        <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary btn-sm">View</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
+    <p style="font-size:3rem;">🔍</p>
+    <p>No books match your search. Try different keywords.</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

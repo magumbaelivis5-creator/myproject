@@ -1,0 +1,93 @@
+{% extends 'library/base.html' %}
+{% block title %}My Dashboard — LibraryHub{% endblock %}
+{% block content %}
+
+<div class="section-header">
+  <h2>👋 Welcome back, {{ user.first_name|default:user.username }}!</h2>
+  <a href="{% url 'book_list' %}" class="btn btn-accent">Browse Books</a>
+</div>
+
+{% if overdue_count > 0 %}
+<div class="messages"><li class="error">⚠️ You have {{ overdue_count }} overdue book{{ overdue_count|pluralize }}! Please return them as soon as possible.</li></div>
+{% endif %}
+
+<div class="dashboard-grid">
+  <!-- Active Borrows -->
+  <div>
+    <div class="section-header" style="margin-bottom:1rem;">
+      <h3>📥 My Borrowed Books</h3>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Book</th><th>Due Date</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for rec in borrows %}
+          <tr>
+            <td>
+              <a href="{% url 'book_detail' rec.book.pk %}" style="color:var(--primary-light);font-weight:600;">{{ rec.book.title|truncatechars:30 }}</a>
+              <br><small style="color:var(--text-muted);">{{ rec.book.author }}</small>
+            </td>
+            <td>{{ rec.due_date|date:"N j, Y" }}</td>
+            <td>
+              {% if rec.status == 'returned' %}
+                <span class="badge badge-gray">Returned</span>
+              {% elif rec.is_overdue %}
+                <span class="badge badge-red">Overdue</span>
+              {% else %}
+                <span class="badge badge-green">Borrowed</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if rec.status != 'returned' %}
+              <form method="post" action="{% url 'return_book' rec.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success btn-sm">Return</button>
+              </form>
+              {% else %}
+                <span style="color:var(--text-muted);font-size:0.8rem;">{{ rec.return_date|date:"N j" }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:2rem;">No borrow records yet. <a href="{% url 'book_list' %}">Browse books!</a></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Reservations -->
+  <div>
+    <div class="section-header" style="margin-bottom:1rem;">
+      <h3>🔔 My Reservations</h3>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Book</th><th>Reserved</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for res in reservations %}
+          <tr>
+            <td>
+              <a href="{% url 'book_detail' res.book.pk %}" style="color:var(--primary-light);font-weight:600;">{{ res.book.title|truncatechars:35 }}</a>
+            </td>
+            <td>{{ res.reserved_at|date:"N j, Y" }}</td>
+            <td>
+              <form method="post" action="{% url 'cancel_reservation' res.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:2rem;">No active reservations.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
